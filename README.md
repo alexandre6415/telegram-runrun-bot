@@ -37,7 +37,7 @@ Bot em Python para Telegram que cria tarefas no Runrun.it a partir de mensagens,
 
 ```bash
 cd ~
-git clone https://github.com/alexandre6415/telegram-runrun-bot.git
+git clone -b feature/docker https://github.com/alexandre6415/telegram-runrun-bot.git
 cd telegram-runrun-bot
 ```
 
