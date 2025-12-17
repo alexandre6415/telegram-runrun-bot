@@ -1,0 +1,9 @@
+version: "3.9"
+
+services:
+  telegram-runrun-bot:
+    build: .
+    container_name: telegram-runrun-bot
+    env_file:
+      - .env
+    restart: unless-stopped
