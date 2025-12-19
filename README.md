@@ -6,11 +6,11 @@ Bot em Python para Telegram que cria tarefas no Runrun.it a partir de mensagens,
 
 ## Funcionalidades
 
-* Cria tarefas no Runrun.it a partir de mensagens enviadas ao bot no Telegram.
-* Define projeto, quadro e tipo de tarefa fixos via configuração.
-* Permite registrar horas já trabalhadas usando o endpoint `manual_work_periods`.
+* Cria tarefas no Runrun.it a partir de mensagens enviadas ao bot no Telegram
+* Define projeto, quadro e tipo de tarefa fixos via configuração
+* Permite registrar horas já trabalhadas usando o endpoint `manual_work_periods`
+* **CONTROLE DE ACESSO POR WHITELIST (IDs autorizados)**
 * Pode rodar 24/7 como:
-
   * Contêiner **Docker** (recomendado)
   * Serviço **systemd** em uma VM Linux (modo alternativo/legado)
 
@@ -19,15 +19,17 @@ Bot em Python para Telegram que cria tarefas no Runrun.it a partir de mensagens,
 ## Requisitos
 
 * **Docker / Docker Compose**
-
   * ou **Linux (Ubuntu ou similar) + Python 3.8+**
 * Acesso à internet
 * Conta no **Runrun.it** com:
-
   * App-Key
   * User-Token
   * IDs de `project_id`, `board_id` e `type_id`
 * Bot criado no Telegram via **@BotFather** (token HTTP)
+* IDs dos usuários autorizados no Telegram
+
+📌 Para descobrir seu ID no Telegram, use:  
+https://t.me/userinfobot
 
 ---
 
@@ -56,7 +58,8 @@ RUNRUN_USER_TOKEN=seu_user_token_runrun
 ALLOWED_USER_IDS=123456789,987654321
 ```
 
-> ⚠️ O arquivo `.env` já está no `.gitignore` e **não deve ser commitado**.
+> ⚠️ Apenas os IDs informados em `ALLOWED_USER_IDS` poderão usar o bot  
+> ⚠️ O arquivo `.env` já está no `.gitignore` e **não deve ser commitado**
 
 ### 3. Subir o contêiner
 
@@ -117,6 +120,7 @@ nano .env
 TELEGRAM_API_TOKEN=seu_token_do_bot_telegram
 RUNRUN_APP_KEY=sua_app_key_runrun
 RUNRUN_USER_TOKEN=seu_user_token_runrun
+ALLOWED_USER_IDS=123456789
 ```
 
 ### 4. Testar manualmente
@@ -145,6 +149,7 @@ Type=simple
 User=alexandre
 WorkingDirectory=/home/alexandre/telegram-runrun-bot
 Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=/home/alexandre/telegram-runrun-bot/.env
 ExecStart=/home/alexandre/telegram-runrun-bot/venv/bin/python3 /home/alexandre/telegram-runrun-bot/bot.py
 Restart=on-failure
 RestartSec=5
@@ -166,15 +171,15 @@ sudo systemctl status telegram-runrun-bot.service
 
 ## Estrutura do projeto
 
-```
+```text
 telegram-runrun-bot/
-├── bot.py              # Código do bot (Telegram + Runrun.it)
-├── requirements.txt    # Dependências Python
-├── Dockerfile          # Build da imagem Docker
-├── docker-compose.yml  # Orquestração simples (opcional)
-├── .gitignore          # Arquivos ignorados pelo Git
-├── README.md           # Documentação
-└── venv/               # Ambiente virtual local (não versionado, opcional)
+├── bot.py
+├── requirements.txt
+├── Dockerfile
+├── docker-compose.yml
+├── .gitignore
+├── README.md
+└── venv/
 ```
 
 ---
@@ -182,11 +187,12 @@ telegram-runrun-bot/
 ## Segurança
 
 * Tokens e chaves de API ficam apenas no arquivo `.env`
+* Controle de acesso por **whitelist de IDs do Telegram**
 * `.env` e `venv/` estão no `.gitignore`
 * Em caso de vazamento:
-
   * Revogue os tokens no Runrun.it
   * Gere um novo token no BotFather
+  * Atualize imediatamente o `.env`
 
 ---
 
