@@ -12,11 +12,24 @@ RUNRUN_APP_KEY = os.getenv("RUNRUN_APP_KEY")
 RUNRUN_USER_TOKEN = os.getenv("RUNRUN_USER_TOKEN")
 RUNRUN_BASE_URL = "https://runrun.it/api/v1.0"
 
+# Carrega IDs autorizados do .env
+ALLOWED_USER_IDS = [
+    int(user_id.strip()) 
+    for user_id in os.getenv("ALLOWED_USER_IDS", "").split(",") 
+    if user_id.strip()
+]
 
 bot = telebot.TeleBot(API_TOKEN)
 
 # Mapeia mensagem do usuário -> ID da tarefa criada
 pending_tasks = {}  # { (chat_id, message_id): task_id }
+
+def is_authorized(user_id):
+    """Verifica se o usuário está autorizado a usar o bot"""
+    if not ALLOWED_USER_IDS:
+        print(f"AVISO: Nenhum usuário autorizado configurado no .env")
+        return False
+    return user_id in ALLOWED_USER_IDS
 
 def criar_tarefa_runrun(texto):
     url = f"{RUNRUN_BASE_URL}/tasks"
@@ -71,6 +84,15 @@ def build_hours_keyboard():
 
 @bot.message_handler(commands=["start", "help"])
 def send_welcome(message):
+    if not is_authorized(message.from_user.id):
+        bot.reply_to(
+            message,
+            "⛔ Você não tem permissão para usar este bot.\n"
+            f"Seu ID: {message.from_user.id}"
+        )
+        print(f"Acesso negado para usuário {message.from_user.id} ({message.from_user.username})")
+        return
+    
     bot.reply_to(
         message,
         "Bot online. Envie o título/descrição do ticket; em seguida escolha as horas já trabalhadas."
@@ -78,6 +100,15 @@ def send_welcome(message):
 
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
+    if not is_authorized(message.from_user.id):
+        bot.reply_to(
+            message,
+            "⛔ Você não tem permissão para usar este bot.\n"
+            f"Seu ID: {message.from_user.id}"
+        )
+        print(f"Tentativa de criar ticket negada para usuário {message.from_user.id} ({message.from_user.username})")
+        return
+    
     texto = message.text or ""
     resp = criar_tarefa_runrun(texto)
 
@@ -107,6 +138,10 @@ def handle_message(message):
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("h_"))
 def callback_hours(call):
+    if not is_authorized(call.from_user.id):
+        bot.answer_callback_query(call.id, "⛔ Acesso negado.")
+        return
+    
     seconds = int(call.data.split("_", 1)[1])
 
     # Associa a tarefa à última mensagem de texto do usuário nesse chat:

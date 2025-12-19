@@ -53,6 +53,7 @@ Exemplo de conteúdo:
 TELEGRAM_API_TOKEN=seu_token_do_bot_telegram
 RUNRUN_APP_KEY=sua_app_key_runrun
 RUNRUN_USER_TOKEN=seu_user_token_runrun
+ALLOWED_USER_IDS=123456789,987654321
 ```
 
 > ⚠️ O arquivo `.env` já está no `.gitignore` e **não deve ser commitado**.
