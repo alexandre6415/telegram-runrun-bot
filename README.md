@@ -20,12 +20,12 @@ Bot em Python para Telegram que integra com o Runrun.it, permitindo criar e gere
 
 ## Comandos disponíveis
 
-| Comando | Descrição |
-|---|---|
-| `/start` ou `/help` | Exibe a mensagem de ajuda |
-| `/minhas_tarefas` | Lista suas tarefas em aberto |
-| `/cancelar` | Cancela qualquer operação pendente |
-| _(texto livre)_ | Inicia o fluxo de criação de tarefa |
+| Comando             | Descrição                           |
+|---------------------|-------------------------------------|
+| `/start` ou `/help` | Exibe a mensagem de ajuda           |
+| `/minhas_tarefas`   | Lista suas tarefas em aberto        |
+| `/cancelar`         | Cancela qualquer operação pendente  |
+| _(texto livre)_     | Inicia o fluxo de criação de tarefa |
 
 > 💡 Configure os comandos no @BotFather com `/setcommands` para que apareçam no menu do Telegram.
 
@@ -35,9 +35,7 @@ Bot em Python para Telegram que integra com o Runrun.it, permitindo criar e gere
 
 - **Docker + Docker Compose**
 - Acesso à internet
-- Conta no **Runrun.it** com acesso à API (plano pago):
-  - `App-Key` e `User-Token`
-  - IDs de `project_id`, `board_id` e `type_id` configurados no `bot.py`
+- Conta no **Runrun.it** com acesso à API (plano pago)
 - Bot criado no Telegram via **@BotFather**
 - IDs dos usuários autorizados no Telegram
 
@@ -61,7 +59,7 @@ cp .env.example .env
 nano .env
 ```
 
-Preencha as variáveis conforme o `.env.example`.
+Preencha todas as variáveis conforme as instruções dentro do `.env.example`.
 
 ### 3. Subir o contêiner
 
@@ -73,6 +71,27 @@ docker compose up --build -d
 
 ```bash
 docker logs -f telegram-runrun-bot
+```
+
+---
+
+## Como encontrar os IDs do Runrun.it
+
+| Variável              | Como encontrar                                                                 |
+|-----------------------|--------------------------------------------------------------------------------|
+| `RUNRUN_APP_KEY`      | Runrun.it → Integrações e Apps → API e Webhooks                               |
+| `RUNRUN_USER_TOKEN`   | Runrun.it → Integrações e Apps → API e Webhooks                               |
+| `RUNRUN_RESPONSIBLE_ID` | Slug visível na URL do perfil do usuário. Ex: `joao-silva`                  |
+| `RUNRUN_PROJECT_ID`   | Acesse `GET /api/v1.0/projects` na API ou inspecione a URL do projeto         |
+| `RUNRUN_BOARD_ID`     | Acesse `GET /api/v1.0/projects/:id` — campo `board_id` na resposta            |
+| `RUNRUN_TYPE_ID`      | Acesse `GET /api/v1.0/task_types` na API                                      |
+
+Exemplo de chamada para listar projetos:
+
+```bash
+curl "https://runrun.it/api/v1.0/projects" \
+  -H "App-Key: SEU_APP_KEY" \
+  -H "User-Token: SEU_USER_TOKEN"
 ```
 
 ---
@@ -106,6 +125,7 @@ telegram-runrun-bot/
 
 - Tokens e chaves de API ficam **apenas no `.env`**, que está no `.gitignore`
 - Acesso restrito por **whitelist de IDs do Telegram**
+- Nenhum valor de configuração está hardcoded no código
 - Em caso de vazamento de credenciais:
   - Revogue os tokens no Runrun.it
   - Gere um novo token no @BotFather

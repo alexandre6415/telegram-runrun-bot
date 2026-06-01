@@ -13,6 +13,9 @@ API_TOKEN             = os.getenv("TELEGRAM_API_TOKEN")
 RUNRUN_APP_KEY        = os.getenv("RUNRUN_APP_KEY")
 RUNRUN_USER_TOKEN     = os.getenv("RUNRUN_USER_TOKEN")
 RUNRUN_RESPONSIBLE_ID = os.getenv("RUNRUN_RESPONSIBLE_ID")
+RUNRUN_PROJECT_ID     = os.getenv("RUNRUN_PROJECT_ID")
+RUNRUN_BOARD_ID       = os.getenv("RUNRUN_BOARD_ID")
+RUNRUN_TYPE_ID        = os.getenv("RUNRUN_TYPE_ID")
 RUNRUN_BASE_URL       = "https://runrun.it/api/v1.0"
 
 for _var, _nome in [
@@ -20,6 +23,9 @@ for _var, _nome in [
     (RUNRUN_APP_KEY,        "RUNRUN_APP_KEY"),
     (RUNRUN_USER_TOKEN,     "RUNRUN_USER_TOKEN"),
     (RUNRUN_RESPONSIBLE_ID, "RUNRUN_RESPONSIBLE_ID"),
+    (RUNRUN_PROJECT_ID,     "RUNRUN_PROJECT_ID"),
+    (RUNRUN_BOARD_ID,       "RUNRUN_BOARD_ID"),
+    (RUNRUN_TYPE_ID,        "RUNRUN_TYPE_ID"),
 ]:
     if not _var:
         raise ValueError(f"Variável obrigatória não configurada no .env: {_nome}")
@@ -142,10 +148,10 @@ def criar_tarefa_runrun(texto: str):
         "task": {
             "title": texto[:80],
             "description": texto,
-            "project_id": 2757553,
-            "board_id": 407293,
+            "project_id": int(RUNRUN_PROJECT_ID),
+            "board_id": int(RUNRUN_BOARD_ID),
             "responsible_id": RUNRUN_RESPONSIBLE_ID,
-            "type_id": 1889240,
+            "type_id": int(RUNRUN_TYPE_ID),
         }
     }
     resp = requests.post(url, json=payload, headers=runrun_headers())
@@ -218,11 +224,11 @@ def build_confirm_keyboard():
 def build_hours_keyboard(task_id: int):
     markup = types.InlineKeyboardMarkup(row_width=3)
     markup.add(
-        types.InlineKeyboardButton("30min", callback_data=f"h_{task_id}_1800"),
-        types.InlineKeyboardButton("1h",    callback_data=f"h_{task_id}_3600"),
-        types.InlineKeyboardButton("2h",    callback_data=f"h_{task_id}_7200"),
-        types.InlineKeyboardButton("3h",    callback_data=f"h_{task_id}_10800"),
-        types.InlineKeyboardButton("4h",    callback_data=f"h_{task_id}_14400"),
+        types.InlineKeyboardButton("30min",   callback_data=f"h_{task_id}_1800"),
+        types.InlineKeyboardButton("1h",      callback_data=f"h_{task_id}_3600"),
+        types.InlineKeyboardButton("2h",      callback_data=f"h_{task_id}_7200"),
+        types.InlineKeyboardButton("3h",      callback_data=f"h_{task_id}_10800"),
+        types.InlineKeyboardButton("4h",      callback_data=f"h_{task_id}_14400"),
         types.InlineKeyboardButton("Nenhuma", callback_data=f"h_{task_id}_0"),
     )
     return markup
@@ -343,9 +349,9 @@ def handle_message(message):
 
     # ── Aguardando comentário ──
     if chat_id in pending_comments:
-        state    = pending_comments.pop(chat_id)
-        task_id  = state["task_id"]
-        bot_msg  = state["bot_msg_id"]
+        state   = pending_comments.pop(chat_id)
+        task_id = state["task_id"]
+        bot_msg = state["bot_msg_id"]
 
         resp = adicionar_comentario(task_id, texto)
         if resp.status_code in (200, 201):
@@ -467,10 +473,7 @@ def handle_callback(call):
         draft["awaiting_edit"] = True
         draft["expires_at"]    = time.time() + CONFIRMATION_TIMEOUT
         bot.answer_callback_query(call.id)
-        bot.edit_message_text(
-            "✏️ Envie o texto corrigido:",
-            chat_id, msg_id,
-        )
+        bot.edit_message_text("✏️ Envie o texto corrigido:", chat_id, msg_id)
         return
 
     if data == "confirm_cancel":
@@ -583,7 +586,6 @@ def handle_callback(call):
             if resp.status_code in (200, 201):
                 novo_estado = not is_urgent
                 label = "marcada como urgente 🚨" if novo_estado else "desmarcada como urgente"
-                # Atualiza estado local
                 task["is_urgent"] = novo_estado
                 bot.edit_message_text(
                     f"Tarefa *{task_id}* {label}.",
