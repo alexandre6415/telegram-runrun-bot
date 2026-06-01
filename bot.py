@@ -9,11 +9,20 @@ from dotenv import load_dotenv
 
 
 load_dotenv()
-API_TOKEN            = os.getenv("TELEGRAM_API_TOKEN")
-RUNRUN_APP_KEY       = os.getenv("RUNRUN_APP_KEY")
-RUNRUN_USER_TOKEN    = os.getenv("RUNRUN_USER_TOKEN")
-RUNRUN_BASE_URL      = "https://runrun.it/api/v1.0"
-RUNRUN_RESPONSIBLE_ID = os.getenv("RUNRUN_RESPONSIBLE_ID", "alexandre-rosendo-passos-filho")
+API_TOKEN             = os.getenv("TELEGRAM_API_TOKEN")
+RUNRUN_APP_KEY        = os.getenv("RUNRUN_APP_KEY")
+RUNRUN_USER_TOKEN     = os.getenv("RUNRUN_USER_TOKEN")
+RUNRUN_RESPONSIBLE_ID = os.getenv("RUNRUN_RESPONSIBLE_ID")
+RUNRUN_BASE_URL       = "https://runrun.it/api/v1.0"
+
+for _var, _nome in [
+    (API_TOKEN,             "TELEGRAM_API_TOKEN"),
+    (RUNRUN_APP_KEY,        "RUNRUN_APP_KEY"),
+    (RUNRUN_USER_TOKEN,     "RUNRUN_USER_TOKEN"),
+    (RUNRUN_RESPONSIBLE_ID, "RUNRUN_RESPONSIBLE_ID"),
+]:
+    if not _var:
+        raise ValueError(f"Variável obrigatória não configurada no .env: {_nome}")
 
 ALLOWED_USER_IDS = [
     int(uid.strip())
