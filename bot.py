@@ -16,6 +16,7 @@ RUNRUN_RESPONSIBLE_ID = os.getenv("RUNRUN_RESPONSIBLE_ID")
 RUNRUN_PROJECT_ID     = os.getenv("RUNRUN_PROJECT_ID")
 RUNRUN_BOARD_ID       = os.getenv("RUNRUN_BOARD_ID")
 RUNRUN_TYPE_ID        = os.getenv("RUNRUN_TYPE_ID")
+RUNRUN_TEAM_ID        = os.getenv("RUNRUN_TEAM_ID")
 RUNRUN_BASE_URL       = "https://runrun.it/api/v1.0"
 
 for _var, _nome in [
@@ -26,6 +27,7 @@ for _var, _nome in [
     (RUNRUN_PROJECT_ID,     "RUNRUN_PROJECT_ID"),
     (RUNRUN_BOARD_ID,       "RUNRUN_BOARD_ID"),
     (RUNRUN_TYPE_ID,        "RUNRUN_TYPE_ID"),
+    (RUNRUN_TEAM_ID,        "RUNRUN_TEAM_ID"),
 ]:
     if not _var:
         raise ValueError(f"Variável obrigatória não configurada no .env: {_nome}")
@@ -152,6 +154,7 @@ def criar_tarefa_runrun(texto: str):
             "board_id": int(RUNRUN_BOARD_ID),
             "responsible_id": RUNRUN_RESPONSIBLE_ID,
             "type_id": int(RUNRUN_TYPE_ID),
+            "team_id": int(RUNRUN_TEAM_ID),
         }
     }
     resp = requests.post(url, json=payload, headers=runrun_headers())
